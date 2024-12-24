@@ -1,15 +1,17 @@
 'use client';
 
+import { useRouter } from 'next/navigation'; // Correctly use the router
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store/store';
-import { removeFromCart, clearCart } from '../store/cartSlice'; // Import clearCart
+import { removeFromCart, clearCart } from '../store/cartSlice';
 import { ChevronLeft } from 'lucide-react';
-import { PlusCircle, MinusCircle } from 'lucide-react'; // Use PlusCircle and MinusCircle
+import { PlusCircle, MinusCircle } from 'lucide-react';
 import { addToCart } from '../store/cartSlice';
 
 export default function Cart() {
   const dispatch = useDispatch<AppDispatch>();
   const cartItems = useSelector((state: RootState) => state.cart.items);
+  const router = useRouter();
 
   const handleRemove = (id: number) => {
     dispatch(removeFromCart(id));
@@ -18,13 +20,11 @@ export default function Cart() {
   const handleIncreaseQuantity = (id: number) => {
     const item = cartItems.find((item) => item.id === id);
     if (item) {
-      dispatch(
-        removeFromCart(id) // First, remove the item with the old quantity
-      );
+      dispatch(removeFromCart(id));
       dispatch(
         addToCart({
           ...item,
-          quantity: (item.quantity || 0) + 1, // Increase the quantity
+          quantity: (item.quantity || 0) + 1,
         })
       );
     }
@@ -33,13 +33,11 @@ export default function Cart() {
   const handleDecreaseQuantity = (id: number) => {
     const item = cartItems.find((item) => item.id === id);
     if (item && item.quantity! > 1) {
-      dispatch(
-        removeFromCart(id) // First, remove the item with the old quantity
-      );
+      dispatch(removeFromCart(id));
       dispatch(
         addToCart({
           ...item,
-          quantity: (item.quantity || 0) - 1, // Decrease the quantity
+          quantity: (item.quantity || 0) - 1,
         })
       );
     }
@@ -51,20 +49,22 @@ export default function Cart() {
 
   const handleProceedToCheckout = () => {
     alert('Items are dispatched successfully!');
-    dispatch(clearCart()); // Clear the cart after proceeding to checkout
-    window.location.href = '/'; // Redirect to the home page
+    dispatch(clearCart());
+    router.push('/');
   };
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
-      {/* Back Arrow */}
       <div className="mb-4">
-        <ChevronLeft size={32} onClick={() => window.location.href = '/'} className="cursor-pointer" />
+        <ChevronLeft
+          size={32}
+          onClick={() => router.push('/')}
+          className="cursor-pointer"
+        />
       </div>
 
       <h1 className="text-2xl font-bold mb-6">Cart</h1>
 
-      {/* Cart Items */}
       {cartItems.map((item) => (
         <div key={item.id} className="bg-gray-800 p-4 rounded-lg mb-4 flex items-center justify-between">
           <img src={item.image} alt={item.title} className="h-20 w-20 object-contain" />
@@ -72,17 +72,17 @@ export default function Cart() {
             <h3 className="font-semibold">{item.title}</h3>
             <p className="font-bold">${item.price}</p>
             <div className="flex items-center">
-              {/* Quantity control */}
+              { }
               <MinusCircle
                 size={32}
                 className="cursor-pointer"
-                onClick={() => handleDecreaseQuantity(item.id)} // Decrease quantity
+                onClick={() => handleDecreaseQuantity(item.id)}
               />
               <span className="mx-4">{item.quantity}</span>
               <PlusCircle
                 size={32}
                 className="cursor-pointer"
-                onClick={() => handleIncreaseQuantity(item.id)} // Increase quantity
+                onClick={() => handleIncreaseQuantity(item.id)}
               />
             </div>
           </div>
@@ -90,7 +90,7 @@ export default function Cart() {
         </div>
       ))}
 
-      {/* Cart Totals */}
+      { }
       <div className="bg-gray-800 p-4 rounded-lg mt-6">
         <div className="flex justify-between mb-2">
           <span>Subtotal:</span>
@@ -106,7 +106,7 @@ export default function Cart() {
         </div>
       </div>
 
-      {/* Proceed to Checkout */}
+      { }
       <button onClick={handleProceedToCheckout} className="bg-yellow-400 text-black px-6 py-2 mt-6 rounded-lg w-full">
         Proceed to Checkout
       </button>
