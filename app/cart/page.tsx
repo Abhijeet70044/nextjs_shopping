@@ -10,7 +10,6 @@ import { addToCart } from '../store/cartSlice';
 export default function Cart() {
   const dispatch = useDispatch<AppDispatch>();
   const cartItems = useSelector((state: RootState) => state.cart.items);
-  const totalItems = useSelector((state: RootState) => state.cart.totalItems);
 
   const handleRemove = (id: number) => {
     dispatch(removeFromCart(id));
