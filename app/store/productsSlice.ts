@@ -5,12 +5,9 @@ interface Product {
   id: number;
   title: string;
   price: number;
-  image: string;
+  images: string[]; // Array of images
   category: string;
-  rating: {
-    rate: number;
-    count: number;
-  };
+  rating: number;
 }
 
 // Define the ProductsState
@@ -27,9 +24,9 @@ const initialState: ProductsState = {
 
 // Async thunk to fetch products
 export const fetchProducts = createAsyncThunk('products/fetchProducts', async () => {
-  const response = await fetch('https://fakestoreapi.com/products');
-  const data: Product[] = await response.json();
-  return data;
+  const response = await fetch('https://dummyjson.com/products');
+  const data = await response.json();
+  return data.products; // Access the `products` array from API response
 });
 
 const productsSlice = createSlice({
