@@ -1,13 +1,11 @@
-// pages/cart.tsx
 'use client';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store/store';
-import { removeFromCart } from '../store/cartSlice';
+import { removeFromCart, clearCart } from '../store/cartSlice'; // Import clearCart
 import { ChevronLeft } from 'lucide-react';
-import { PlusCircle, MinusCircle } from 'lucide-react'; // Replace CirclePlus and Circle
-
-
+import { PlusCircle, MinusCircle } from 'lucide-react'; // Use PlusCircle and MinusCircle
+import { addToCart } from '../store/cartSlice';
 
 export default function Cart() {
   const dispatch = useDispatch<AppDispatch>();
@@ -18,21 +16,51 @@ export default function Cart() {
     dispatch(removeFromCart(id));
   };
 
+  const handleIncreaseQuantity = (id: number) => {
+    const item = cartItems.find((item) => item.id === id);
+    if (item) {
+      dispatch(
+        removeFromCart(id) // First, remove the item with the old quantity
+      );
+      dispatch(
+        addToCart({
+          ...item,
+          quantity: (item.quantity || 0) + 1, // Increase the quantity
+        })
+      );
+    }
+  };
+
+  const handleDecreaseQuantity = (id: number) => {
+    const item = cartItems.find((item) => item.id === id);
+    if (item && item.quantity! > 1) {
+      dispatch(
+        removeFromCart(id) // First, remove the item with the old quantity
+      );
+      dispatch(
+        addToCart({
+          ...item,
+          quantity: (item.quantity || 0) - 1, // Decrease the quantity
+        })
+      );
+    }
+  };
+
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * (item.quantity || 1), 0);
   const discount = subtotal * 0.05;
   const total = subtotal - discount;
 
   const handleProceedToCheckout = () => {
     alert('Items are dispatched successfully!');
-    // Clear Redux store (you may use a specific action for this)
-    dispatch({ type: 'cart/clear' });
+    dispatch(clearCart()); // Clear the cart after proceeding to checkout
+    window.location.href = '/'; // Redirect to the home page
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className="min-h-screen bg-black text-white p-6">
       {/* Back Arrow */}
       <div className="mb-4">
-        <ChevronLeft size={32} onClick={() => window.history.back()} className="cursor-pointer" />
+        <ChevronLeft size={32} onClick={() => window.location.href = '/'} className="cursor-pointer" />
       </div>
 
       <h1 className="text-2xl font-bold mb-6">Cart</h1>
@@ -46,9 +74,17 @@ export default function Cart() {
             <p className="font-bold">${item.price}</p>
             <div className="flex items-center">
               {/* Quantity control */}
-              <PlusCircle size={32} className="cursor-pointer" />
+              <MinusCircle
+                size={32}
+                className="cursor-pointer"
+                onClick={() => handleDecreaseQuantity(item.id)} // Decrease quantity
+              />
               <span className="mx-4">{item.quantity}</span>
-              <MinusCircle size={32} className="cursor-pointer" />
+              <PlusCircle
+                size={32}
+                className="cursor-pointer"
+                onClick={() => handleIncreaseQuantity(item.id)} // Increase quantity
+              />
             </div>
           </div>
           <button onClick={() => handleRemove(item.id)} className="text-red-500">Remove</button>

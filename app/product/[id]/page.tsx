@@ -2,7 +2,7 @@
 
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, CirclePlus, Circle } from 'lucide-react';
+import { ChevronLeft, PlusCircle, MinusCircle } from 'lucide-react';
 import { addToCart } from '../../store/cartSlice';
 import { useState, useEffect } from 'react';
 import { Product } from '../../store/productsSlice'; // Correctly import the Product interface
@@ -15,21 +15,22 @@ const ProductDetail = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const [quantity, setQuantity] = useState<number>(1);
+  const [quantity, setQuantity] = useState<number>(0); // Start with 0 quantity
 
-  const handleIncrease = () => setQuantity((prev) => prev + 1);
-  const handleDecrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  const handleIncrease = () => setQuantity((prev) => prev + 1); // Increase quantity
+  const handleDecrease = () => setQuantity((prev) => (prev > 0 ? prev - 1 : 0)); // Decrease quantity
 
   const handleAddToCart = () => {
-    if (product) {
-      // Ensure that product is not null before calling addToCart
+    if (product && quantity > 0) { // Ensure quantity is greater than 0 before adding to cart
+      // Dispatch the product with the correct quantity
       dispatch(
         addToCart({
           ...product, // Spread existing product properties
-          quantity: 1, // Add quantity dynamically
-          image: product.images[0], // If image is used differently in the cart
+          quantity: quantity, // Pass the updated quantity
+          image: product.images[0], // Use the first image for compatibility
         })
       );
+      router.push('/cart'); // Redirect to the cart page after adding to cart
     }
   };
 
@@ -51,7 +52,7 @@ const ProductDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className="min-h-screen bg-black text-white p-6">
       {/* Back Arrow */}
       <div className="mb-4">
         <ChevronLeft size={32} onClick={() => router.push('/')} className="cursor-pointer" />
@@ -72,9 +73,9 @@ const ProductDetail = () => {
 
         {/* Quantity Control */}
         <div className="flex items-center mb-6">
-          <CirclePlus size={32} onClick={handleIncrease} className="cursor-pointer" />
+          <MinusCircle size={32} onClick={handleDecrease} className="cursor-pointer" />
           <span className="mx-4">{quantity}</span>
-          <Circle size={32} onClick={handleDecrease} className="cursor-pointer" />
+          <PlusCircle size={32} onClick={handleIncrease} className="cursor-pointer" />
         </div>
 
         {/* Add to Cart Button */}

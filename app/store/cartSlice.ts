@@ -27,15 +27,19 @@ const cartSlice = createSlice({
   reducers: {
     addToCart: (state, action: PayloadAction<Product>) => {
       const product = action.payload;
+
       const existingItem = state.items.find((item) => item.id === product.id);
 
       if (existingItem) {
-        existingItem.quantity = (existingItem.quantity || 1) + 1;
+        // If the item already exists in the cart, increase its quantity by the quantity from the payload
+        existingItem.quantity = (existingItem.quantity || 0) + (product.quantity || 1);
       } else {
-        state.items.push({ ...product, quantity: 1 });
+        // If the item doesn't exist, add it to the cart with the provided quantity
+        state.items.push({ ...product, quantity: product.quantity || 1 });
       }
 
-      state.totalItems++;
+      // Update the totalItems based on the new quantity
+      state.totalItems = state.items.reduce((total, item) => total + (item.quantity || 0), 0);
     },
     removeFromCart: (state, action: PayloadAction<number>) => {
       const productId = action.payload;
@@ -43,17 +47,17 @@ const cartSlice = createSlice({
 
       if (existingItemIndex > -1) {
         const existingItem = state.items[existingItemIndex];
-        state.totalItems -= existingItem.quantity || 1;
-        state.items.splice(existingItemIndex, 1);
+        state.totalItems -= existingItem.quantity || 1; // Subtract the quantity of the removed item
+        state.items.splice(existingItemIndex, 1); // Remove the item from the cart
       }
     },
     clearCart: (state) => {
-        state.items = [];
-        state.totalItems 
+      state.items = [];
+      state.totalItems = 0; // Reset the totalItems to 0 when the cart is cleared
     },
   },
 });
 
-export const { addToCart, removeFromCart } = cartSlice.actions;
+export const { addToCart, removeFromCart, clearCart } = cartSlice.actions;
 
 export default cartSlice.reducer;

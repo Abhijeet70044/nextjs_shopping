@@ -18,15 +18,17 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   useEffect(() => {
-    // Fetch products
+    // Fetch products only once on component mount
     dispatch(fetchProducts());
+  }, [dispatch]);
 
-    // Extract categories from the products
+  useEffect(() => {
+    // Extract categories only once when products change
     if (products.length > 0) {
       const uniqueCategories = ['all', ...new Set(products.map((product) => product.category))];
       setCategories(uniqueCategories);
     }
-  }, [dispatch, products]);
+  }, [products]); // This runs when `products` change
 
   // Filter products based on the selected category
   const filteredProducts = selectedCategory === 'all'
@@ -34,7 +36,7 @@ export default function Home() {
     : products.filter((product) => product.category === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className="min-h-screen bg-black text-white p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Product List</h1>
