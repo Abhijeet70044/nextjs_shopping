@@ -6,9 +6,11 @@ import { fetchProducts } from './store/productsSlice';
 import { addToCart } from './store/cartSlice';
 import { RootState, AppDispatch } from './store/store';
 import { ShoppingCart } from 'lucide-react';
+import { useRouter } from 'next/navigation'; // Import useRouter
 
 export default function Home() {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter(); // Initialize useRouter for navigation
   const products = useSelector((state: RootState) => state.products.products);
   const cartTotalItems = useSelector((state: RootState) => state.cart.totalItems);
 
@@ -36,7 +38,10 @@ export default function Home() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Product List</h1>
-        <div className="relative">
+        <div
+          className="relative cursor-pointer"
+          onClick={() => router.push('/cart')} // Redirect to the cart page
+        >
           <ShoppingCart
             size={32}
             className={`${cartTotalItems > 0 ? 'text-yellow-400' : 'text-gray-600'
@@ -71,7 +76,8 @@ export default function Home() {
         {filteredProducts.map((product) => (
           <div
             key={product.id}
-            className="bg-gray-800 p-4 rounded-lg shadow hover:shadow-lg"
+            className="bg-gray-800 p-4 rounded-lg shadow hover:shadow-lg cursor-pointer"
+            onClick={() => router.push(`/product/${product.id}`)} // Redirect to product detail page
           >
             <img
               src={product.images[0]} // Use the first image
@@ -86,14 +92,15 @@ export default function Home() {
             </div>
             <p className="font-bold">${product.price}</p>
             <button
-              onClick={() =>
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent navigation when clicking "Add to Cart"
                 dispatch(
                   addToCart({
                     ...product,
                     image: product.images[0], // Explicitly provide `image` for compatibility
                   })
-                )
-              }
+                );
+              }}
               className="bg-yellow-400 text-black px-4 py-2 mt-4 rounded w-full"
             >
               +
